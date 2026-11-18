@@ -1,4 +1,5 @@
 import { ArrowUpRight, Layers3, ShieldCheck, Sparkles } from 'lucide-react'
+import { useState } from 'react'
 import { useRepository } from '../hooks/useRepository'
 import Button from '../components/common/Button'
 import ErrorMessage from '../components/common/ErrorMessage'
@@ -6,8 +7,12 @@ import ReadmeList from '../components/repository/ReadmeList'
 import RepositoryInfo from '../components/repository/RepositoryInfo'
 import RepositoryInput from '../components/repository/RepositoryInput'
 import ReadmePreview from '../components/preview/ReadmePreview'
+import TemplateSelector from '../components/templates/TemplateSelector'
 
 export default function Home() {
+  const [templateId, setTemplateId] = useState('modern')
+  const [theme, setTheme] = useState('light')
+  const [isOriginal, setIsOriginal] = useState(false)
   const {
     repository,
     readmes,
@@ -51,12 +56,20 @@ export default function Home() {
                 onSelect={selectReadme}
               />
               {selectedReadme ? (
-                <ReadmePreview
-                  markdown={markdown}
-                  repository={repository}
-                  readmePath={selectedReadme.path}
-                  loading={loadingReadme}
-                />
+                <div className="preview-column">
+                  {!isOriginal && <TemplateSelector selectedId={templateId} onSelect={setTemplateId} />}
+                  <ReadmePreview
+                    markdown={markdown}
+                    repository={repository}
+                    readmePath={selectedReadme.path}
+                    loading={loadingReadme}
+                    templateId={templateId}
+                    theme={theme}
+                    onThemeChange={setTheme}
+                    isOriginal={isOriginal}
+                    onOriginalChange={setIsOriginal}
+                  />
+                </div>
               ) : (
                 <section className="preview-empty">
                   <div className="empty-icon"><Layers3 size={24} /></div>
