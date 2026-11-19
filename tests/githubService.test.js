@@ -74,6 +74,34 @@ test('falls back to directory traversal when GitHub truncates the recursive tree
   ])
 })
 
+test('reports truncated directory trees instead of returning partial Markdown results', async () => {
+  globalThis.fetch = async (url) => {
+    const value = String(url)
+    let payload
+    if (value.endsWith('/repos/octo/project')) {
+      payload = { name: 'project', default_branch: 'main', owner: { login: 'octo' } }
+    } else if (value.endsWith('/git/trees/main')) {
+      payload = { truncated: true, sha: 'root-sha', tree: [] }
+    } else if (value.endsWith('/git/trees/root-sha')) {
+      payload = {
+        truncated: false,
+        tree: [{ type: 'tree', path: 'docs', sha: 'docs-sha' }],
+      }
+    } else {
+      payload = {
+        truncated: true,
+        tree: [{ type: 'blob', path: 'README.md', sha: 'readme', size: 12 }],
+      }
+    }
+    return new Response(JSON.stringify(payload), { status: 200 })
+  }
+
+  await assert.rejects(
+    () => fetchRepository('octo', 'project'),
+    /incomplete directory listing/,
+  )
+})
+
 test('reports missing repositories and GitHub API rate limits clearly', async () => {
   globalThis.fetch = async () => new Response(JSON.stringify({ message: 'Not Found' }), { status: 404 })
   await assert.rejects(() => fetchRepository('missing', 'repo'), /Repository or Markdown file not found/)

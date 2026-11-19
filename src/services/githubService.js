@@ -61,6 +61,12 @@ function isMarkdownFile(path) {
   return /\.md$/i.test(path)
 }
 
+function assertCompleteTree(tree) {
+  if (tree.truncated) {
+    throw new Error('GitHub returned an incomplete directory listing, so not all Markdown files could be discovered.')
+  }
+}
+
 async function getTree(owner, repo, treeSha, signal) {
   return request(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees/${encodeURIComponent(treeSha)}`, { signal })
 }
@@ -76,6 +82,7 @@ async function discoverMarkdownFiles(owner, repo, defaultBranch, signal) {
   const found = []
   const visited = new Set()
   const rootTree = await getTree(owner, repo, recursiveTree.sha, signal)
+  assertCompleteTree(rootTree)
   const queue = [...rootTree.tree]
 
   while (queue.length) {
@@ -88,6 +95,7 @@ async function discoverMarkdownFiles(owner, repo, defaultBranch, signal) {
       if (item.type !== 'tree' || visited.has(item.sha)) return
       visited.add(item.sha)
       const child = await getTree(owner, repo, item.sha, signal)
+      assertCompleteTree(child)
       child.tree.forEach((entry) => {
         queue.push({ ...entry, path: `${item.path}/${entry.path}` })
       })
