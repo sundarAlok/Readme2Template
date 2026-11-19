@@ -1,9 +1,10 @@
 const API_ROOT = 'https://api.github.com'
 const requestCache = new Map()
+const CACHE_DURATION = 5 * 60 * 1000
 
 function getErrorMessage(response, payload) {
   if (response.status === 404) {
-    return 'Repository or README file not found. Check the URL and confirm the repository is public.'
+    return 'Repository or Markdown file not found. Check the URL and confirm the repository is public.'
   }
   if (response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0') {
     const resetAt = Number(response.headers.get('x-ratelimit-reset'))
@@ -24,7 +25,9 @@ function getErrorMessage(response, payload) {
 async function request(path, { signal, cache = true } = {}) {
   const url = `${API_ROOT}${path}`
   if (cache && requestCache.has(url)) {
-    return requestCache.get(url)
+    const entry = requestCache.get(url)
+    if (Date.now() - entry.savedAt < CACHE_DURATION) return entry.payload
+    requestCache.delete(url)
   }
 
   let response
@@ -50,22 +53,28 @@ async function request(path, { signal, cache = true } = {}) {
   if (!response.ok) {
     throw new Error(getErrorMessage(response, payload))
   }
-  if (cache) requestCache.set(url, payload)
+  if (cache) requestCache.set(url, { payload, savedAt: Date.now() })
   return payload
 }
 
-function isReadme(path) {
-  return /(^|\/)readme\.md$/i.test(path)
+function isMarkdownFile(path) {
+  return /\.md$/i.test(path)
+}
+
+function assertCompleteTree(tree) {
+  if (tree.truncated) {
+    throw new Error('GitHub returned an incomplete directory listing, so not all Markdown files could be discovered.')
+  }
 }
 
 async function getTree(owner, repo, treeSha, signal) {
   return request(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees/${encodeURIComponent(treeSha)}`, { signal })
 }
 
-async function discoverReadmes(owner, repo, defaultBranch, signal) {
+async function discoverMarkdownFiles(owner, repo, defaultBranch, signal) {
   const recursiveTree = await getTree(owner, repo, defaultBranch, signal)
   if (!recursiveTree.truncated) {
-    return recursiveTree.tree.filter((item) => item.type === 'blob' && isReadme(item.path))
+    return recursiveTree.tree.filter((item) => item.type === 'blob' && isMarkdownFile(item.path))
       .map(({ path, sha, size }) => ({ path, sha, size }))
       .sort((left, right) => left.path.localeCompare(right.path))
   }
@@ -73,18 +82,20 @@ async function discoverReadmes(owner, repo, defaultBranch, signal) {
   const found = []
   const visited = new Set()
   const rootTree = await getTree(owner, repo, recursiveTree.sha, signal)
+  assertCompleteTree(rootTree)
   const queue = [...rootTree.tree]
 
   while (queue.length) {
     const entries = queue.splice(0, 100)
     await Promise.all(entries.map(async (item) => {
-      if (item.type === 'blob' && isReadme(item.path)) {
+      if (item.type === 'blob' && isMarkdownFile(item.path)) {
         found.push({ path: item.path, sha: item.sha, size: item.size })
         return
       }
       if (item.type !== 'tree' || visited.has(item.sha)) return
       visited.add(item.sha)
       const child = await getTree(owner, repo, item.sha, signal)
+      assertCompleteTree(child)
       child.tree.forEach((entry) => {
         queue.push({ ...entry, path: `${item.path}/${entry.path}` })
       })
@@ -96,12 +107,12 @@ async function discoverReadmes(owner, repo, defaultBranch, signal) {
 
 export async function fetchRepository(owner, repo, { signal } = {}) {
   const repository = await request(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, { signal })
-  const readmes = await discoverReadmes(owner, repo, repository.default_branch, signal)
-  return { repository, readmes }
+  const markdownFiles = await discoverMarkdownFiles(owner, repo, repository.default_branch, signal)
+  return { repository, markdownFiles }
 }
 
-export async function fetchReadmeFile(owner, repo, path, branch, { signal } = {}) {
-  return request(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(branch)}`, { signal, cache: false })
+export async function fetchMarkdownFile(owner, repo, path, branch, { signal } = {}) {
+  return request(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(branch)}`, { signal })
 }
 
 export function clearGitHubCache() {

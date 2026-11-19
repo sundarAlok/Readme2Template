@@ -1,6 +1,6 @@
 export function decodeReadmeContent(file) {
   if (!file || file.type !== 'file') {
-    throw new Error('GitHub returned an unsupported README response.')
+    throw new Error('GitHub returned an unsupported Markdown file response.')
   }
   if (file.encoding === 'base64' && typeof file.content === 'string') {
     const binary = atob(file.content.replace(/\s/g, ''))
@@ -10,7 +10,7 @@ export function decodeReadmeContent(file) {
   if (file.encoding === 'utf-8' && typeof file.content === 'string') {
     return file.content
   }
-  throw new Error('This README is too large or uses an unsupported encoding.')
+  throw new Error('This Markdown file is too large or uses an unsupported encoding.')
 }
 
 export function resolveReadmeResource(value, { owner, repo, branch, readmePath, image = false }) {

@@ -11,7 +11,7 @@ test('decodes UTF-8 README content from GitHub base64', () => {
 
 test('rejects unsupported GitHub content responses', () => {
   assert.throws(() => decodeReadmeContent({ type: 'file', encoding: 'none' }), /too large|unsupported/)
-  assert.throws(() => decodeReadmeContent({ type: 'dir' }), /unsupported README/)
+  assert.throws(() => decodeReadmeContent({ type: 'dir' }), /unsupported Markdown file/)
 })
 
 test('resolves relative README links and images from nested directories', () => {
