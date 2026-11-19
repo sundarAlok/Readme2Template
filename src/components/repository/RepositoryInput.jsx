@@ -26,10 +26,9 @@ export default function RepositoryInput({ onSubmit, loading }) {
           required
         />
         <Button type="submit" disabled={loading}>
-          {loading ? <Loader label="Discovering" /> : <>Explore README <ArrowRight size={17} /></>}
+          {loading ? <Loader label="Discovering" /> : <>Explore Markdown <ArrowRight size={17} /></>}
         </Button>
       </div>
-      <p className="form-hint">Public repositories only. No account or token required.</p>
     </form>
   )
 }
