@@ -1,8 +1,8 @@
 export default function Footer() {
   return (
     <footer className="footer">
-      <span>GitHub README Designer</span>
-      <span>Free, frontend-only, no sign-in</span>
+      <span>Readme2Template</span>
+      <span>Free to use · No sign-in required</span>
     </footer>
   )
 }

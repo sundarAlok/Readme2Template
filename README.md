@@ -1,6 +1,6 @@
-# GitHub README Designer
+# Readme2Template
 
-GitHub README Designer is a free, frontend-only app for browsing every `.md` file in a public GitHub repository, previewing it with one of five designs, and exporting a standalone HTML file.
+Readme2Template is a free tool for browsing every `.md` file in a public GitHub repository, previewing it with one of five designs, and exporting a standalone HTML file.
 
 ## Features
 
@@ -9,9 +9,10 @@ GitHub README Designer is a free, frontend-only app for browsing every `.md` fil
 - Resolve relative image and document links using the selected file's repository path.
 - Switch between Modern, Minimal, Developer, Documentation, and Premium templates.
 - Preview light and dark modes, choose from five gradient themes for the Premium, Developer, Documentation, and Modern styles, and compare the original with the selected design.
+- Choose whether to show all emojis, only heading emojis, or no emojis in the preview.
 - Maximize the preview to full screen and minimize it again with the toolbar or `Escape`.
 - Download a standalone HTML file or copy its HTML to the clipboard.
-- Remember template, preview mode, and gradient theme preferences in browser storage. Typography stays system sans-serif.
+- Remember template, preview mode, gradient theme, and emoji display preferences in browser storage. Typography stays system sans-serif.
 - Use public GitHub repositories without a sign-in, backend, database, or API token.
 
 ## Technology

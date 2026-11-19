@@ -1,4 +1,4 @@
-import { ArrowUpRight, Layers3, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowUpRight, Layers3, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
 import { useRepository } from '../hooks/useRepository'
 import { usePreference } from '../hooks/usePreference'
@@ -28,6 +28,11 @@ export default function Home() {
     'violet',
     (value) => getDesignTheme(value).id,
   )
+  const [emojiMode, setEmojiMode, emojiModeError] = usePreference(
+    'readme-designer-emoji-mode',
+    'all',
+    (value) => ['all', 'headings', 'none'].includes(value) ? value : 'all',
+  )
   const [isOriginal, setIsOriginal] = useState(false)
   const [compare, setCompare] = useState(false)
   const templateId = getTemplate(savedTemplateId).id
@@ -43,7 +48,7 @@ export default function Home() {
     selectFile,
     reset,
   } = useRepository()
-  const preferenceError = templateError || themeError || designThemeError
+  const preferenceError = templateError || themeError || designThemeError || emojiModeError
   const designTheme = getDesignTheme(savedDesignTheme)
 
   function resetWorkspace() {
@@ -55,9 +60,9 @@ export default function Home() {
   return (
     <div className="home-page">
       <section className="hero-section">
-        <div className="eyebrow"><Sparkles size={14} /> README, reimagined</div>
-        <h1>Make your project's first impression <span>unforgettable.</span></h1>
-        <p>Explore any public GitHub repository. Find the README and every other Markdown file, then give your documentation a design worth sharing.</p>
+        <div className="eyebrow">ONE WORKSPACE FOR YOUR MARKDOWN</div>
+        <h1>Make your project docs <span>easy to explore.</span></h1>
+        <p>Find any README or Markdown file in a public GitHub repository, preview it in a polished template, and export a page ready to share.</p>
         <RepositoryInput onSubmit={loadRepository} loading={loadingRepository} />
         <ErrorMessage>{error}</ErrorMessage>
         <div className="trust-row">
@@ -98,6 +103,8 @@ export default function Home() {
                     onCompareChange={setCompare}
                     designTheme={designTheme}
                     onDesignThemeChange={saveDesignTheme}
+                    emojiMode={emojiMode}
+                    onEmojiModeChange={setEmojiMode}
                   />
                 </div>
               ) : (

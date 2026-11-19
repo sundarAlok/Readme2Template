@@ -9,7 +9,7 @@ export default function ModernTemplate(props) {
       <div className="template-modern-content">
         <MarkdownRenderer {...props} />
       </div>
-      <div className="template-credit">Built with GitHub README Designer <span>·</span> {repository.full_name}</div>
+      <div className="template-credit">Built with Readme2Template <span>·</span> {repository.full_name}</div>
     </div>
   )
 }
