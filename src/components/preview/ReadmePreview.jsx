@@ -20,6 +20,8 @@ export default function ReadmePreview({
   onCompareChange,
   designTheme,
   onDesignThemeChange,
+  emojiMode,
+  onEmojiModeChange,
 }) {
   const { Component: TemplateComponent } = getTemplate(templateId)
   const [maximized, setMaximized] = useState(false)
@@ -104,6 +106,8 @@ export default function ReadmePreview({
         onCompareChange={onCompareChange}
         designTheme={designTheme}
         onDesignThemeChange={onDesignThemeChange}
+        emojiMode={emojiMode}
+        onEmojiModeChange={onEmojiModeChange}
         onDownload={download}
         onCopy={copyHtml}
         exportDisabled={loading || isOriginal}
@@ -116,20 +120,20 @@ export default function ReadmePreview({
           <div className="comparison-view">
             <section className="comparison-pane">
               <h3>Original · {readmePath}</h3>
-              <MarkdownRenderer markdown={markdown} repository={repository} readmePath={readmePath} />
+              <MarkdownRenderer markdown={markdown} repository={repository} readmePath={readmePath} emojiMode={emojiMode} />
             </section>
             <section className="comparison-pane">
               <h3>Designed · {getTemplate(templateId).name}</h3>
               <div ref={exportRef}>
-                <TemplateComponent markdown={markdown} repository={repository} readmePath={readmePath} />
+                <TemplateComponent markdown={markdown} repository={repository} readmePath={readmePath} emojiMode={emojiMode} />
               </div>
             </section>
           </div>
         ) : isOriginal ? (
-          <MarkdownRenderer markdown={markdown} repository={repository} readmePath={readmePath} />
+          <MarkdownRenderer markdown={markdown} repository={repository} readmePath={readmePath} emojiMode={emojiMode} />
         ) : (
           <div ref={exportRef}>
-            <TemplateComponent markdown={markdown} repository={repository} readmePath={readmePath} />
+            <TemplateComponent markdown={markdown} repository={repository} readmePath={readmePath} emojiMode={emojiMode} />
           </div>
         )}
       </div>

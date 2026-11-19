@@ -5,6 +5,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
 import { resolveReadmeResource } from '../../services/readmeService'
 import { extractHeadings, slugifyHeading } from '../../utils/markdownUtils'
+import { emojiFilterPlugin } from '../../utils/emojiUtils'
 
 function getText(children) {
   return children.map((child) => {
@@ -23,7 +24,7 @@ function safeExternalUrl(value) {
   }
 }
 
-export default function MarkdownRenderer({ markdown, repository, readmePath, className = '' }) {
+export default function MarkdownRenderer({ markdown, repository, readmePath, className = '', emojiMode = 'all' }) {
   const context = {
     owner: repository.owner.login,
     repo: repository.name,
@@ -41,7 +42,7 @@ export default function MarkdownRenderer({ markdown, repository, readmePath, cla
   return (
     <article className={`markdown-body ${className}`}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, emojiFilterPlugin(emojiMode)]}
         rehypePlugins={[rehypeSanitize, rehypeHighlight]}
         components={{
           h1: renderHeading('h1'),

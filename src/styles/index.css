@@ -125,13 +125,17 @@ a { color: inherit; }
 .button-icon:hover { background: #efedf8; color: var(--accent-dark); }
 .preview-customization { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 40px; padding: 4px 14px; border-bottom: 1px solid #eceef2; background: #fff; }
 .theme-picker { display: inline-flex; align-items: center; gap: 9px; margin: 0; padding: 0; border: 0; }
-.theme-picker legend { float: left; margin-right: 8px; padding: 0; color: #737b8c; font-size: 10px; font-weight: 750; }
+.theme-picker legend, .emoji-picker legend { float: left; margin-right: 8px; padding: 0; color: #737b8c; font-size: 10px; font-weight: 750; }
 .theme-options { display: inline-flex; align-items: center; gap: 6px; }
 .theme-option { width: 21px; height: 21px; padding: 0; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px #d5d8e1; cursor: pointer; }
 .theme-option:hover { transform: scale(1.1); }
 .theme-option.is-selected { box-shadow: 0 0 0 2px #5c50ca; }
 .theme-option:focus-visible { outline: 2px solid #5c50ca; outline-offset: 3px; }
 .theme-name { min-width: 68px; color: #737b8c; font-size: 10px; }
+.emoji-picker { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; border: 0; }
+.emoji-picker legend { margin-right: 2px; }
+.emoji-picker label { display: inline-flex; align-items: center; gap: 3px; color: #60697b; font-size: 10px; white-space: nowrap; cursor: pointer; }
+.emoji-picker input { width: 12px; height: 12px; margin: 0; accent-color: #5c50ca; cursor: pointer; }
 .export-feedback { margin-left: auto; font-size: 10px; }
 .export-feedback.success { color: #24804f; }
 .export-feedback.error, .preference-error { color: #a62e36; }
@@ -280,10 +284,12 @@ a { color: inherit; }
   .preview-actions .button-icon { min-height: 28px; }
   .preview-customization { gap: 9px; padding: 6px 9px; }
   .theme-picker { gap: 6px; }
-  .theme-picker legend { margin-right: 2px; }
+  .theme-picker legend, .emoji-picker legend { margin-right: 2px; }
   .theme-options { gap: 5px; }
   .theme-option { width: 19px; height: 19px; }
   .theme-name { min-width: 54px; }
+  .emoji-picker { gap: 5px; }
+  .emoji-picker label { gap: 2px; }
   .comparison-view { grid-template-columns: 1fr; }
   .preview-panel.is-maximized .preview-header { padding: 0 12px; }
   .preview-panel.is-maximized .preview-toolbar { padding: 7px 10px; }

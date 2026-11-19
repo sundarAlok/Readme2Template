@@ -28,6 +28,11 @@ export default function Home() {
     'violet',
     (value) => getDesignTheme(value).id,
   )
+  const [emojiMode, setEmojiMode, emojiModeError] = usePreference(
+    'readme-designer-emoji-mode',
+    'all',
+    (value) => ['all', 'headings', 'none'].includes(value) ? value : 'all',
+  )
   const [isOriginal, setIsOriginal] = useState(false)
   const [compare, setCompare] = useState(false)
   const templateId = getTemplate(savedTemplateId).id
@@ -43,7 +48,7 @@ export default function Home() {
     selectFile,
     reset,
   } = useRepository()
-  const preferenceError = templateError || themeError || designThemeError
+  const preferenceError = templateError || themeError || designThemeError || emojiModeError
   const designTheme = getDesignTheme(savedDesignTheme)
 
   function resetWorkspace() {
@@ -98,6 +103,8 @@ export default function Home() {
                     onCompareChange={setCompare}
                     designTheme={designTheme}
                     onDesignThemeChange={saveDesignTheme}
+                    emojiMode={emojiMode}
+                    onEmojiModeChange={setEmojiMode}
                   />
                 </div>
               ) : (

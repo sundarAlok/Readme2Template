@@ -11,6 +11,8 @@ export default function PreviewToolbar({
   onCompareChange,
   designTheme,
   onDesignThemeChange,
+  emojiMode,
+  onEmojiModeChange,
   onDownload,
   onCopy,
   maximized,
@@ -98,6 +100,42 @@ export default function PreviewToolbar({
             ))}
           </div>
           <span className="theme-name">{designTheme.name}</span>
+        </fieldset>
+        <fieldset className="emoji-picker">
+          <legend>Emoji display</legend>
+          <label title="Allow all emojis in the preview">
+            <input
+              type="radio"
+              name="emoji-display"
+              value="all"
+              aria-label="Allow all emojis"
+              checked={emojiMode === 'all'}
+              onChange={() => onEmojiModeChange('all')}
+            />
+            <span>All</span>
+          </label>
+          <label title="Allow emojis in Markdown headings only">
+            <input
+              type="radio"
+              name="emoji-display"
+              value="headings"
+              aria-label="Allow emojis in headings only"
+              checked={emojiMode === 'headings'}
+              onChange={() => onEmojiModeChange('headings')}
+            />
+            <span>Headings</span>
+          </label>
+          <label title="Remove all emojis from the preview">
+            <input
+              type="radio"
+              name="emoji-display"
+              value="none"
+              aria-label="Remove all emojis"
+              checked={emojiMode === 'none'}
+              onChange={() => onEmojiModeChange('none')}
+            />
+            <span>None</span>
+          </label>
         </fieldset>
         {feedback && <span className={`export-feedback ${feedback.type}`} role={feedback.type === 'error' ? 'alert' : 'status'}>{feedback.message}</span>}
       </div>
