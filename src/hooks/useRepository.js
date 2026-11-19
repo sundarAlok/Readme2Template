@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { fetchReadmeFile, fetchRepository } from '../services/githubService'
+import { fetchMarkdownFile, fetchRepository } from '../services/githubService'
 import { decodeReadmeContent } from '../services/readmeService'
 import { parseGitHubUrl } from '../utils/parseGitHubUrl'
 
 export function useRepository() {
   const [repository, setRepository] = useState(null)
-  const [readmes, setReadmes] = useState([])
-  const [selectedReadme, setSelectedReadme] = useState(null)
+  const [markdownFiles, setMarkdownFiles] = useState([])
+  const [selectedFile, setSelectedFile] = useState(null)
   const [markdown, setMarkdown] = useState('')
   const [loadingRepository, setLoadingRepository] = useState(false)
   const [loadingReadme, setLoadingReadme] = useState(false)
@@ -14,10 +14,10 @@ export function useRepository() {
 
   async function loadRepository(input) {
     setError('')
-    setSelectedReadme(null)
+    setSelectedFile(null)
     setMarkdown('')
     setRepository(null)
-    setReadmes([])
+    setMarkdownFiles([])
     let parsed
     try {
       parsed = parseGitHubUrl(input)
@@ -30,8 +30,8 @@ export function useRepository() {
     try {
       const result = await fetchRepository(parsed.owner, parsed.repo)
       setRepository(result.repository)
-      setReadmes(result.readmes)
-      if (result.readmes.length === 0) setError('No README.md files were found in this repository.')
+      setMarkdownFiles(result.markdownFiles)
+      if (result.markdownFiles.length === 0) setError('No .md files were found in this repository.')
     } catch (loadError) {
       setError(loadError.message)
     } finally {
@@ -39,22 +39,22 @@ export function useRepository() {
     }
   }
 
-  async function selectReadme(readme) {
+  async function selectFile(fileEntry) {
     if (!repository) return
     setError('')
     setLoadingReadme(true)
-    setSelectedReadme(readme)
+    setSelectedFile(fileEntry)
     setMarkdown('')
     try {
-      const file = await fetchReadmeFile(
+      const file = await fetchMarkdownFile(
         repository.owner.login,
         repository.name,
-        readme.path,
+        fileEntry.path,
         repository.default_branch,
       )
       setMarkdown(decodeReadmeContent(file))
     } catch (loadError) {
-      setSelectedReadme(null)
+      setSelectedFile(null)
       setError(loadError.message)
     } finally {
       setLoadingReadme(false)
@@ -63,22 +63,22 @@ export function useRepository() {
 
   function reset() {
     setRepository(null)
-    setReadmes([])
-    setSelectedReadme(null)
+    setMarkdownFiles([])
+    setSelectedFile(null)
     setMarkdown('')
     setError('')
   }
 
   return {
     repository,
-    readmes,
-    selectedReadme,
+    markdownFiles,
+    selectedFile,
     markdown,
     loadingRepository,
     loadingReadme,
     error,
     loadRepository,
-    selectReadme,
+    selectFile,
     reset,
   }
 }

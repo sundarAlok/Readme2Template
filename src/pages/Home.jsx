@@ -1,6 +1,9 @@
 import { ArrowUpRight, Layers3, ShieldCheck, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useRepository } from '../hooks/useRepository'
+import { usePreference } from '../hooks/usePreference'
+import { getTemplate } from '../templates'
+import { getDesignTheme } from '../templates/designThemes'
 import Button from '../components/common/Button'
 import ErrorMessage from '../components/common/ErrorMessage'
 import ReadmeList from '../components/repository/ReadmeList'
@@ -10,33 +13,56 @@ import ReadmePreview from '../components/preview/ReadmePreview'
 import TemplateSelector from '../components/templates/TemplateSelector'
 
 export default function Home() {
-  const [templateId, setTemplateId] = useState('modern')
-  const [theme, setTheme] = useState('light')
+  const [savedTemplateId, saveTemplateId, templateError] = usePreference(
+    'readme-designer-template',
+    'minimal',
+    (value) => getTemplate(value).id,
+  )
+  const [theme, setTheme, themeError] = usePreference(
+    'readme-designer-theme',
+    'light',
+    (value) => value === 'dark' ? 'dark' : 'light',
+  )
+  const [savedDesignTheme, saveDesignTheme, designThemeError] = usePreference(
+    'readme-designer-design-theme',
+    'violet',
+    (value) => getDesignTheme(value).id,
+  )
   const [isOriginal, setIsOriginal] = useState(false)
+  const [compare, setCompare] = useState(false)
+  const templateId = getTemplate(savedTemplateId).id
   const {
     repository,
-    readmes,
-    selectedReadme,
+    markdownFiles,
+    selectedFile,
     markdown,
     loadingRepository,
     loadingReadme,
     error,
     loadRepository,
-    selectReadme,
+    selectFile,
     reset,
   } = useRepository()
+  const preferenceError = templateError || themeError || designThemeError
+  const designTheme = getDesignTheme(savedDesignTheme)
+
+  function resetWorkspace() {
+    reset()
+    setIsOriginal(false)
+    setCompare(false)
+  }
 
   return (
     <div className="home-page">
       <section className="hero-section">
         <div className="eyebrow"><Sparkles size={14} /> README, reimagined</div>
         <h1>Make your project's first impression <span>unforgettable.</span></h1>
-        <p>Explore any public GitHub repository. Find every README, then give your documentation a design worth sharing.</p>
+        <p>Explore any public GitHub repository. Find the README and every other Markdown file, then give your documentation a design worth sharing.</p>
         <RepositoryInput onSubmit={loadRepository} loading={loadingRepository} />
         <ErrorMessage>{error}</ErrorMessage>
         <div className="trust-row">
           <span><ShieldCheck size={16} /> No sign-in required</span>
-          <span><Layers3 size={16} /> Every nested README</span>
+          <span><Layers3 size={16} /> README + other Markdown files</span>
           <span><ArrowUpRight size={16} /> Free forever</span>
         </div>
       </section>
@@ -45,29 +71,33 @@ export default function Home() {
         <section className="workspace">
           <div className="workspace-topline">
             <span>Repository workspace</span>
-            <Button variant="text" onClick={reset}>Explore another repository</Button>
+            <Button variant="text" onClick={resetWorkspace}>Explore another repository</Button>
           </div>
           <RepositoryInfo repository={repository} />
-          {readmes.length > 0 && (
+          {markdownFiles.length > 0 && (
             <div className="workspace-grid">
               <ReadmeList
-                readmes={readmes}
-                selectedPath={selectedReadme?.path}
-                onSelect={selectReadme}
+                files={markdownFiles}
+                selectedPath={selectedFile?.path}
+                onSelect={selectFile}
               />
-              {selectedReadme ? (
+              {selectedFile ? (
                 <div className="preview-column">
-                  {!isOriginal && <TemplateSelector selectedId={templateId} onSelect={setTemplateId} />}
+                  {!isOriginal && <TemplateSelector selectedId={templateId} onSelect={saveTemplateId} />}
                   <ReadmePreview
                     markdown={markdown}
                     repository={repository}
-                    readmePath={selectedReadme.path}
+                    readmePath={selectedFile.path}
                     loading={loadingReadme}
                     templateId={templateId}
                     theme={theme}
                     onThemeChange={setTheme}
                     isOriginal={isOriginal}
                     onOriginalChange={setIsOriginal}
+                    compare={compare}
+                    onCompareChange={setCompare}
+                    designTheme={designTheme}
+                    onDesignThemeChange={saveDesignTheme}
                   />
                 </div>
               ) : (
@@ -84,10 +114,11 @@ export default function Home() {
       {!repository && (
         <section className="feature-cards" aria-label="How it works">
           <article><span>01</span><h2>Paste a repository</h2><p>Start with any public GitHub URL. No setup, accounts, or tokens.</p></article>
-          <article><span>02</span><h2>Find every README</h2><p>Discover documentation from the repository root to nested folders.</p></article>
+          <article><span>02</span><h2>Find README + other Markdown files</h2><p>Discover every README and .md document from the repository root to nested folders.</p></article>
           <article><span>03</span><h2>Preview instantly</h2><p>Read the original Markdown with links, tables, images, and code intact.</p></article>
         </section>
       )}
+      {preferenceError && <p className="preference-error" role="status">{preferenceError}</p>}
     </div>
   )
 }
