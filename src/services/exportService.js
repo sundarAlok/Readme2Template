@@ -1,11 +1,6 @@
+import { getDesignTheme } from '../templates/designThemes.js'
+
 const templateNames = new Set(['modern', 'minimal', 'developer', 'documentation', 'premium'])
-const designThemes = {
-  violet: { start: '#262b3c', end: '#64578c' },
-  'hot-pink': { start: '#702248', end: '#f04e82' },
-  green: { start: '#145447', end: '#63ad78' },
-  'blue-violet': { start: '#174b81', end: '#7659d8' },
-  golden: { start: '#704b16', end: '#dfab4e' },
-}
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -62,8 +57,7 @@ export function createStandaloneHtml({
 }) {
   const safeTemplate = templateNames.has(templateId) ? templateId : 'modern'
   const safeTheme = theme === 'dark' ? 'dark' : 'light'
-  const safeDesignTheme = designThemes[designTheme] ? designTheme : 'violet'
-  const safeDesign = designThemes[safeDesignTheme]
+  const safeDesign = getDesignTheme(designTheme)
   const safeGradient = `linear-gradient(125deg,${safeDesign.start},${safeDesign.end})`
   return `<!doctype html>
 <html lang="en">
@@ -120,5 +114,5 @@ export function downloadHtmlFile(html, filename) {
   anchor.href = url
   anchor.download = filename
   anchor.click()
-  URL.revokeObjectURL(url)
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
